@@ -37,9 +37,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/anonymous_seedphrase"
-Repository = "https://github.com/yourusername/anonymous_seedphrase"
-Issues = "https://github.com/yourusername/anonymous_seedphrase/issues"
+Homepage = "https://github.com/JulesLogerot/anonymous_seedphrase"
+Repository = "https://github.com/JulesLogerot/anonymous_seedphrase"
+Issues = "https://github.com/JulesLogerot/anonymous_seedphrase/issues"
 
 [tool.setuptools]
 packages = ["src"]

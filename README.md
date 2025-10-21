@@ -34,7 +34,7 @@ L'application utilise :
 
 ```bash
 # Clonez le repository
-git clone <your-repo-url>
+git clone <https://github.com/JulesLogerot/anonymous_seedphrase.git>
 cd anonymous_seedphrase
 
 # Exécutez le script de setup (crée l'environnement, installe les dépendances)
