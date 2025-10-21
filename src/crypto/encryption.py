@@ -10,8 +10,7 @@ La clé de chiffrement est dérivée du mot de passe utilisateur via PBKDF2.
 import base64
 import json
 import os
-from datetime import datetime, timezone
-from typing import Dict, Tuple
+from datetime import UTC, datetime
 
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
@@ -51,9 +50,7 @@ class SeedPhraseEncryptor:
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
         return key
 
-    def encrypt_seedphrase(
-        self, seedphrase: str, password: str
-    ) -> Tuple[bytes, Dict[str, str]]:
+    def encrypt_seedphrase(self, seedphrase: str, password: str) -> tuple[bytes, dict[str, str]]:
         """
         Chiffre une seed phrase avec un mot de passe.
 
@@ -92,13 +89,13 @@ class SeedPhraseEncryptor:
             "kdf": "PBKDF2-HMAC-SHA256",
             "iterations": str(self.PBKDF2_ITERATIONS),
             "salt": base64.b64encode(salt).decode(),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         return encrypted_data, metadata
 
     def decrypt_seedphrase(
-        self, encrypted_data: bytes, password: str, metadata: Dict[str, str]
+        self, encrypted_data: bytes, password: str, metadata: dict[str, str]
     ) -> str:
         """
         Déchiffre une seed phrase.
@@ -135,13 +132,13 @@ class SeedPhraseEncryptor:
         try:
             decrypted_data = fernet.decrypt(encrypted_data)
             return decrypted_data.decode()
-        except InvalidToken:
+        except InvalidToken as e:
             raise InvalidToken(
                 "Échec du déchiffrement. Mot de passe incorrect ou données corrompues."
-            )
+            ) from e
 
     def save_encrypted_file(
-        self, encrypted_data: bytes, metadata: Dict[str, str], filepath: str
+        self, encrypted_data: bytes, metadata: dict[str, str], filepath: str
     ) -> None:
         """
         Sauvegarde les données chiffrées dans un fichier.
@@ -164,10 +161,10 @@ class SeedPhraseEncryptor:
         try:
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(file_content, f, indent=2)
-        except IOError as e:
-            raise IOError(f"Erreur lors de l'écriture du fichier : {e}")
+        except OSError as e:
+            raise OSError(f"Erreur lors de l'écriture du fichier : {e}") from e
 
-    def load_encrypted_file(self, filepath: str) -> Tuple[bytes, Dict[str, str]]:
+    def load_encrypted_file(self, filepath: str) -> tuple[bytes, dict[str, str]]:
         """
         Charge les données chiffrées depuis un fichier.
 
@@ -184,24 +181,22 @@ class SeedPhraseEncryptor:
             ValueError: Si le format du fichier est invalide
         """
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 file_content = json.load(f)
-        except IOError as e:
-            raise IOError(f"Erreur lors de la lecture du fichier : {e}")
+        except OSError as e:
+            raise OSError(f"Erreur lors de la lecture du fichier : {e}") from e
         except json.JSONDecodeError as e:
-            raise ValueError(f"Format de fichier invalide : {e}")
+            raise ValueError(f"Format de fichier invalide : {e}") from e
 
         if "metadata" not in file_content or "encrypted_data" not in file_content:
-            raise ValueError(
-                "Format de fichier invalide : métadonnées ou données manquantes"
-            )
+            raise ValueError("Format de fichier invalide : métadonnées ou données manquantes")
 
         encrypted_data = base64.b64decode(file_content["encrypted_data"])
         metadata = file_content["metadata"]
 
         return encrypted_data, metadata
 
-    def validate_seedphrase_format(self, seedphrase: str) -> Tuple[bool, str]:
+    def validate_seedphrase_format(self, seedphrase: str) -> tuple[bool, str]:
         """
         Valide le format d'une seed phrase.
 

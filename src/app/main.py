@@ -5,7 +5,6 @@ Cette application permet de chiffrer et déchiffrer de manière sécurisée
 les seed phrases de portefeuilles de cryptomonnaies.
 """
 
-import io
 import os
 import sys
 import tempfile
@@ -48,7 +47,8 @@ def main():
         """
         Chiffrez et sécurisez vos seed phrases de cryptomonnaies avec un chiffrement AES-128.
 
-        **Sécurité** : Vos données sont chiffrées localement et ne sont jamais envoyées sur un serveur.
+        **Sécurité** : Vos données sont chiffrées localement et ne sont jamais envoyées
+        sur un serveur.
         """
     )
 
@@ -85,7 +85,9 @@ def main():
         seedphrase_input = st.text_area(
             "Seed phrase",
             height=100,
-            placeholder="Entrez votre seed phrase (12, 15, 18, 21 ou 24 mots séparés par des espaces)",
+            placeholder=(
+                "Entrez votre seed phrase (12, 15, 18, 21 ou 24 mots séparés par des espaces)"
+            ),
             help="Entrez les mots de votre seed phrase séparés par des espaces",
         )
 
@@ -93,7 +95,10 @@ def main():
         password_encrypt = st.text_input(
             "Mot de passe de chiffrement",
             type="password",
-            help="Choisissez un mot de passe fort (minimum 8 caractères). N'oubliez pas ce mot de passe !",
+            help=(
+                "Choisissez un mot de passe fort (minimum 8 caractères). "
+                "N'oubliez pas ce mot de passe !"
+            ),
         )
 
         # Confirmation du mot de passe
@@ -103,7 +108,7 @@ def main():
             help="Entrez à nouveau le mot de passe",
         )
 
-        col1, col2, col3 = st.columns([1, 1, 2])
+        col1, col2, _ = st.columns([1, 1, 2])
 
         with col1:
             encrypt_button = st.button("🔒 Chiffrer", type="primary", use_container_width=True)
@@ -190,7 +195,8 @@ def main():
 
         st.markdown(
             """
-            Uploadez votre fichier chiffré et entrez le mot de passe pour récupérer votre seed phrase.
+            Uploadez votre fichier chiffré et entrez le mot de passe pour récupérer
+            votre seed phrase.
             """
         )
 
@@ -228,9 +234,7 @@ def main():
 
                     # Charger et déchiffrer
                     with st.spinner("Déchiffrement en cours..."):
-                        encrypted_data, metadata = encryptor.load_encrypted_file(
-                            tmp_filepath
-                        )
+                        encrypted_data, metadata = encryptor.load_encrypted_file(tmp_filepath)
 
                         decrypted_seedphrase = encryptor.decrypt_seedphrase(
                             encrypted_data, password_decrypt, metadata
@@ -245,9 +249,7 @@ def main():
                     st.success("✅ Seed phrase déchiffrée avec succès !")
 
                 except InvalidToken:
-                    st.error(
-                        "❌ Mot de passe incorrect ou fichier corrompu. Veuillez réessayer."
-                    )
+                    st.error("❌ Mot de passe incorrect ou fichier corrompu. Veuillez réessayer.")
                 except ValueError as e:
                     st.error(f"❌ Erreur : {e}")
                 except Exception as e:

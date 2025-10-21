@@ -4,7 +4,6 @@ Tests unitaires pour le module de chiffrement.
 
 import os
 import tempfile
-from pathlib import Path
 
 import pytest
 from cryptography.fernet import InvalidToken
@@ -18,7 +17,10 @@ class TestSeedPhraseEncryptor:
     def setup_method(self):
         """Configure chaque test."""
         self.encryptor = SeedPhraseEncryptor()
-        self.test_seedphrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        self.test_seedphrase = (
+            "abandon abandon abandon abandon abandon abandon "
+            "abandon abandon abandon abandon abandon about"
+        )
         self.test_password = "SecurePassword123!"
 
     def test_encrypt_seedphrase_success(self):
@@ -57,9 +59,7 @@ class TestSeedPhraseEncryptor:
         )
 
         # Déchiffrer
-        decrypted = self.encryptor.decrypt_seedphrase(
-            encrypted_data, self.test_password, metadata
-        )
+        decrypted = self.encryptor.decrypt_seedphrase(encrypted_data, self.test_password, metadata)
 
         assert decrypted == self.test_seedphrase
 
@@ -70,9 +70,7 @@ class TestSeedPhraseEncryptor:
         )
 
         with pytest.raises(InvalidToken):
-            self.encryptor.decrypt_seedphrase(
-                encrypted_data, "WrongPassword123!", metadata
-            )
+            self.encryptor.decrypt_seedphrase(encrypted_data, "WrongPassword123!", metadata)
 
     def test_decrypt_empty_data_raises_error(self):
         """Test que le déchiffrement de données vides lève une erreur."""
@@ -88,9 +86,7 @@ class TestSeedPhraseEncryptor:
         )
 
         with pytest.raises(ValueError, match="sel manquant"):
-            self.encryptor.decrypt_seedphrase(
-                encrypted_data, self.test_password, {}
-            )
+            self.encryptor.decrypt_seedphrase(encrypted_data, self.test_password, {})
 
     def test_save_and_load_encrypted_file(self):
         """Test la sauvegarde et le chargement de fichiers chiffrés."""
@@ -100,18 +96,14 @@ class TestSeedPhraseEncryptor:
         )
 
         # Sauvegarder dans un fichier temporaire
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".seedphrase"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".seedphrase") as tmp_file:
             tmp_filepath = tmp_file.name
 
         try:
             self.encryptor.save_encrypted_file(encrypted_data, metadata, tmp_filepath)
 
             # Charger le fichier
-            loaded_encrypted, loaded_metadata = self.encryptor.load_encrypted_file(
-                tmp_filepath
-            )
+            loaded_encrypted, loaded_metadata = self.encryptor.load_encrypted_file(tmp_filepath)
 
             # Vérifier que les données sont identiques
             assert loaded_encrypted == encrypted_data
@@ -130,9 +122,7 @@ class TestSeedPhraseEncryptor:
 
     def test_load_invalid_file_raises_error(self):
         """Test que le chargement d'un fichier invalide lève une erreur."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".txt"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
             tmp_file.write("Invalid content")
             tmp_filepath = tmp_file.name
 
@@ -153,7 +143,7 @@ class TestSeedPhraseEncryptor:
     def test_validate_seedphrase_format_valid_24_words(self):
         """Test la validation d'une seed phrase de 24 mots."""
         seedphrase = " ".join(["word"] * 24)
-        is_valid, message = self.encryptor.validate_seedphrase_format(seedphrase)
+        is_valid, _ = self.encryptor.validate_seedphrase_format(seedphrase)
 
         assert is_valid is True
 
@@ -190,12 +180,8 @@ class TestSeedPhraseEncryptor:
         assert encrypted_1 != encrypted_2
 
         # Mais les deux doivent se déchiffrer correctement
-        decrypted_1 = self.encryptor.decrypt_seedphrase(
-            encrypted_1, self.test_password, metadata_1
-        )
-        decrypted_2 = self.encryptor.decrypt_seedphrase(
-            encrypted_2, self.test_password, metadata_2
-        )
+        decrypted_1 = self.encryptor.decrypt_seedphrase(encrypted_1, self.test_password, metadata_1)
+        decrypted_2 = self.encryptor.decrypt_seedphrase(encrypted_2, self.test_password, metadata_2)
 
         assert decrypted_1 == self.test_seedphrase
         assert decrypted_2 == self.test_seedphrase
